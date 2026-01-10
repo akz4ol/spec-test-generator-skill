@@ -238,24 +238,92 @@ specs/
 
 ---
 
+## Additional Features
+
+### Gherkin/BDD Output
+Generate `.feature` files from requirements:
+
+```python
+from spec_test_generator import GherkinGenerator
+
+generator = GherkinGenerator(result, output_dir)
+artifacts = generator.generate()
+# Creates features/authentication.feature, features/payment.feature, etc.
+```
+
+### Import from Jira/Linear
+Import requirements from existing issue trackers:
+
+```python
+from spec_test_generator import JiraImporter, LinearImporter, IDManager
+
+id_manager = IDManager(output_dir)
+
+# From Jira JSON export
+jira = JiraImporter(id_manager)
+requirements = jira.import_from_file("jira_export.json")
+
+# From Linear JSON export
+linear = LinearImporter(id_manager)
+requirements = linear.import_from_file("linear_export.json")
+```
+
+### Test Coverage Gap Analysis
+Identify requirements without adequate test coverage:
+
+```python
+from spec_test_generator import CoverageAnalyzer
+
+analyzer = CoverageAnalyzer(result)
+report = analyzer.analyze()
+
+print(f"Coverage: {report.coverage_percentage}%")
+for gap in report.gaps:
+    print(f"  {gap.req_id}: {gap.gap_type} - {gap.description}")
+
+# Write report
+analyzer.write_report(output_dir)  # Creates COVERAGE_REPORT.md
+```
+
+### Change Impact Reports
+Compare PRD versions and analyze impact:
+
+```python
+from spec_test_generator import ImpactAnalyzer
+
+analyzer = ImpactAnalyzer(output_dir)
+report = analyzer.compare("prd_v1.md", "prd_v2.md", existing_tests)
+
+print(f"Risk Level: {report.risk_level}")
+print(f"Changes: {len(report.changes)}")
+print(f"Affected Tests: {report.affected_tests}")
+
+# Write report
+analyzer.write_report("prd_v1.md", "prd_v2.md")  # Creates IMPACT_REPORT.md
+```
+
+---
+
 ## Roadmap
 
-### Now
-- PRD markdown parsing
-- Stable ID generation with fingerprinting
-- Requirements, test plan, test case generation
-- CSV traceability matrix
+### Now ✅
+- [x] PRD markdown parsing
+- [x] Stable ID generation with fingerprinting
+- [x] Requirements, test plan, test case generation
+- [x] CSV traceability matrix
+- [x] Gherkin/BDD output format
+- [x] Import from Jira/Linear
+- [x] Test coverage gap analysis
+- [x] Change impact reports
 
 ### Next
-- [ ] Gherkin/BDD output format
-- [ ] Import from Jira/Linear
-- [ ] Test coverage gap analysis
-- [ ] Change impact reports
-
-### Later
 - [ ] IDE plugins (VS Code, IntelliJ)
 - [ ] Integration with TestRail/Zephyr
 - [ ] AI-assisted test case expansion
+
+### Later
+- [ ] Real-time PRD collaboration
+- [ ] Multi-language support
 
 ---
 
