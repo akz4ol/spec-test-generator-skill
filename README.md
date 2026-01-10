@@ -4,45 +4,102 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
-Converts PRDs and user stories into stable-ID requirements, test plans, test cases, and traceability matrices.
+**A tool that generates requirements and tests from PRDs, using stable IDs that persist across iterations, enabling traceable and auditable specifications.**
 
-## Features
+---
 
-- **Stable IDs**: `REQ-xxxx` and `TEST-xxxx` IDs persist across iterations
-- **Requirements Generation**: Structured requirements with acceptance criteria
-- **Test Plan Generation**: Pragmatic test pyramid strategy
-- **Test Case Generation**: Detailed test cases with preconditions and steps
-- **Traceability Matrix**: Bidirectional REQ ↔ TEST mapping
-- **Policy-Driven**: Configurable strictness levels
+## Why This Exists
 
-## Installation
+- **Requirements decay into chaos** — Every PRD iteration means re-numbering, broken references, and "which REQ-0042 are we talking about?"
+- **Test coverage is guesswork** — Without traceability, you can't prove which tests cover which requirements
+- **Manual ID management is error-prone** — Engineers waste time maintaining spreadsheets of REQ/TEST mappings
+- **Regeneration breaks everything** — Edit a PRD and all your test case IDs shift, invalidating bug reports and test runs
 
-```bash
-# From PyPI
-pip install spec-test-generator
+## What It Is
 
-# From source
-git clone https://github.com/akz4ol/spec-test-generator-skill.git
-cd spec-test-generator-skill
-pip install -e ".[dev]"
+- A **PRD parser** that extracts functional and non-functional requirements
+- A **stable ID generator** using content fingerprints (IDs survive edits)
+- A **test case generator** with pragmatic test pyramid strategy
+- A **traceability matrix builder** for REQ ↔ TEST bidirectional mapping
+- **Audit-ready** — generates artifacts suitable for compliance and reviews
+
+## What It Is NOT
+
+- Not an AI that writes your tests (it structures them, you implement them)
+- Not a test runner or execution framework
+- Not a requirements management system (it generates snapshots, not a database)
+- Not a replacement for thinking — garbage PRD in, garbage specs out
+
+---
+
+## How It Works
+
 ```
+┌─────────────────────────────────────────────────────────────────────┐
+│                  Spec & Test Generation Pipeline                     │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  ┌──────────┐    ┌──────────┐    ┌──────────────────────────────┐   │
+│  │   PRD    │───▶│  Parser  │───▶│     Extracted Requirements   │   │
+│  │ Markdown │    │          │    │  (goals, FRs, NFRs, scope)   │   │
+│  └──────────┘    └──────────┘    └──────────────────────────────┘   │
+│                                         │                            │
+│                        ┌────────────────┘                            │
+│                        ▼                                             │
+│  ┌──────────┐    ┌────────────┐    ┌────────────────────────────┐   │
+│  │ .idmap   │◀──▶│ ID Manager │───▶│   Stable IDs (REQ-xxxx)    │   │
+│  │  .json   │    │ (fingerprint)   │   Persist across edits     │   │
+│  └──────────┘    └────────────┘    └────────────────────────────┘   │
+│                                         │                            │
+│                        ┌────────────────┘                            │
+│                        ▼                                             │
+│               ┌──────────────┐    ┌────────────────────────────┐    │
+│               │  Generator   │───▶│   Test Cases (TEST-xxxx)   │    │
+│               │              │    │   with preconditions/steps │    │
+│               └──────────────┘    └────────────────────────────┘    │
+│                                         │                            │
+│                        ┌────────────────┘                            │
+│                        ▼                                             │
+│               ┌─────────────────────────────────────────────────┐   │
+│               │              Output Artifacts                    │   │
+│               │  • REQUIREMENTS.md  (structured requirements)   │   │
+│               │  • TEST_PLAN.md     (test pyramid strategy)     │   │
+│               │  • TEST_CASES.md    (detailed test cases)       │   │
+│               │  • TRACEABILITY.csv (REQ ↔ TEST mapping)        │   │
+│               └─────────────────────────────────────────────────┘   │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
 
 ## Quick Start
 
-### CLI Usage
+### 30-Second Hello World
 
 ```bash
-# Generate spec artifacts from PRD
+pip install spec-test-generator
+
+# Generate specs from a PRD
 spec-test-generator prd.md
+```
 
-# Use strict regulated policy
-spec-test-generator prd.md --strict
+### 2-Minute Realistic Example
 
-# Output as JSON
-spec-test-generator prd.md --json
+```bash
+# Generate with strict policy (regulated environments)
+spec-test-generator prd.md --strict --output ./specs
 
-# Custom output directory
-spec-test-generator prd.md --output ./spec-docs
+# Output files created:
+# specs/REQUIREMENTS.md   - 12 requirements (REQ-0001 to REQ-0012)
+# specs/TEST_PLAN.md      - Test strategy with pyramid breakdown
+# specs/TEST_CASES.md     - 24 test cases (TEST-0001 to TEST-0024)
+# specs/TRACEABILITY.csv  - Full coverage matrix
+# specs/.idmap.json       - ID persistence (commit this!)
+
+# Edit prd.md, regenerate - IDs stay stable!
+spec-test-generator prd.md --strict --output ./specs
+# REQ-0001 still refers to the same requirement
 ```
 
 ### Python API
@@ -56,46 +113,91 @@ result = generator.generate()
 print(f"Requirements: {len(result['requirements'])}")
 print(f"Test Cases: {len(result['test_cases'])}")
 
-# Write artifacts
-artifacts = generator.write_artifacts()
+# Write artifacts to disk
+artifacts = generator.write_artifacts(output_dir="./specs")
 ```
 
 ### Docker
 
 ```bash
-# Build image
 docker build -t spec-test-generator .
-
-# Generate from PRD
 docker run --rm -v $(pwd):/prds spec-test-generator /prds/prd.md
 ```
 
-## Output Artifacts
+---
 
+## Real-World Use Cases
+
+| Use Case | Command | Outcome |
+|----------|---------|---------|
+| **Sprint planning** | `spec-test-generator epic.md` | Break epics into testable requirements |
+| **Compliance audit** | `spec-test-generator prd.md --strict` | Generate audit-ready traceability |
+| **Test coverage analysis** | Check `TRACEABILITY.csv` | Identify untested requirements |
+| **Change impact** | Regenerate after PRD edit | See which tests need updating |
+
+---
+
+## Comparison with Alternatives
+
+| Tool | Focus | Stable IDs | Traceability | Regeneration |
+|------|-------|------------|--------------|--------------|
+| **spec-test-generator** | PRD → Specs + Tests | Yes (fingerprint) | Full matrix | Safe |
+| Jira/Linear | Issue tracking | Manual | Manual links | N/A |
+| TestRail | Test management | Sequential | Manual | Breaks refs |
+| AI assistants | Ad-hoc generation | No | No | Full rewrite |
+
+**Key differentiator**: Fingerprint-based IDs that survive edits — your bug reports and test runs reference stable identifiers.
+
+---
+
+## Stable ID System
+
+IDs use content fingerprints to survive regeneration:
+
+| Edit Type | ID Behavior |
+|-----------|-------------|
+| Minor wording change | Same ID retained |
+| Requirement split | Original ID on closest match |
+| Major rewrite | New ID allocated |
+| Requirement deleted | ID retired (never reused) |
+
+### How It Works
+
+```json
+// .idmap.json (commit this file!)
+{
+  "requirements": {
+    "a1b2c3d4": "REQ-0001",  // fingerprint → stable ID
+    "e5f6g7h8": "REQ-0002"
+  },
+  "tests": {
+    "x9y0z1a2": "TEST-0001"
+  },
+  "next_req_id": 3,
+  "next_test_id": 2
+}
 ```
-spec/
-├── REQUIREMENTS.md   # REQ-0001, REQ-0002, ...
-├── TEST_PLAN.md      # Unit/integration/e2e strategy
-├── TEST_CASES.md     # TEST-0001, TEST-0002, ...
-├── TRACEABILITY.csv  # REQ_ID <-> TEST_ID mapping
-└── .idmap.json       # ID persistence (internal)
-```
+
+---
 
 ## Policies
 
-| Policy | Use Case |
-|--------|----------|
-| `default.internal.yaml` | Pragmatic internal workflows (default) |
-| `preset.strict.yaml` | Regulated/high-assurance environments |
+| Policy | Use Case | Min Tests/Req | Negative Tests |
+|--------|----------|---------------|----------------|
+| `default.internal.yaml` | Internal/agile | 1 | Optional |
+| `preset.strict.yaml` | Regulated/compliance | 2 | Required |
 
 ### Policy Differences
 
 | Feature | Internal | Strict |
 |---------|----------|--------|
-| Min tests per req | 1 | 2 |
-| Negative tests | Optional | Required |
-| Edge cases | 2+ | 4+ |
-| Acceptance criteria | GWT or bullets | GWT only |
+| Minimum tests per requirement | 1 | 2 |
+| Negative test cases | Optional | Required |
+| Edge cases per requirement | 2+ | 4+ |
+| Acceptance criteria format | GWT or bullets | GWT only |
+| Traceability completeness | Optional gaps | 100% coverage |
+
+---
 
 ## PRD Input Format
 
@@ -103,88 +205,95 @@ spec/
 # PRD: Feature Name
 
 ## Goal
-What this feature accomplishes
+What this feature accomplishes (1-2 sentences)
 
 ## Functional Requirements
-1) First requirement
-2) Second requirement
+1) User can do X when Y
+2) System shall Z under condition W
 
 ## Non-Functional Requirements
 - Performance: p95 < 300ms
+- Security: All endpoints require authentication
 
 ## Non-Goals
 - Things explicitly out of scope
+- Features we're not building
 
 ## Notes
-- Additional context
+- Additional context for implementers
 ```
 
-## Stable ID System
+---
 
-IDs are fingerprint-based and persist across regenerations:
-
-- **Minor edits** → Same ID retained
-- **Requirement split** → Original ID on closest match
-- **Major rewrite** → New ID allocated
-
-The `.idmap.json` file stores mappings:
-
-```json
-{
-  "requirements": {
-    "fingerprint123": "REQ-0001"
-  },
-  "tests": {
-    "testhash789": "TEST-0001"
-  }
-}
-```
-
-## Directory Structure
+## Output Artifacts
 
 ```
-spec-test-generator-skill/
-├── src/spec_test_generator/  # Python package
-├── skills/spec-test-generator/  # Skill definition
-│   ├── SKILL.md              # Skill documentation
-│   ├── policy/               # Policy presets
-│   └── resources/            # Examples
-├── tests/                    # Test suite
-├── schemas/                  # JSON schemas
-├── docs/                     # Documentation
-├── Dockerfile                # Container support
-└── Makefile                 # Common tasks
+specs/
+├── REQUIREMENTS.md   # REQ-0001, REQ-0002, ... with acceptance criteria
+├── TEST_PLAN.md      # Test pyramid strategy (unit/integration/e2e)
+├── TEST_CASES.md     # TEST-0001, TEST-0002, ... with steps
+├── TRACEABILITY.csv  # REQ_ID,TEST_ID,Coverage mapping
+└── .idmap.json       # ID persistence store (commit this!)
 ```
+
+---
+
+## Roadmap
+
+### Now
+- PRD markdown parsing
+- Stable ID generation with fingerprinting
+- Requirements, test plan, test case generation
+- CSV traceability matrix
+
+### Next
+- [ ] Gherkin/BDD output format
+- [ ] Import from Jira/Linear
+- [ ] Test coverage gap analysis
+- [ ] Change impact reports
+
+### Later
+- [ ] IDE plugins (VS Code, IntelliJ)
+- [ ] Integration with TestRail/Zephyr
+- [ ] AI-assisted test case expansion
+
+---
 
 ## Development
 
 ```bash
-# Install dev dependencies
-make dev
+git clone https://github.com/akz4ol/spec-test-generator-skill.git
+cd spec-test-generator-skill
+pip install -e ".[dev]"
 
-# Run tests
-make test
-
-# Run linters
-make lint
-
-# Format code
-make format
-
-# Run all checks
-make all
+make test    # Run tests
+make lint    # Run linters
+make format  # Format code
+make all     # All checks
 ```
 
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-## License
+**Good first issues:**
+- Add new output format (Gherkin, XML)
+- Improve PRD parsing edge cases
+- Add test case templates
 
-MIT License - see [LICENSE](LICENSE) for details.
+---
 
 ## Documentation
 
-- [API Documentation](docs/API.md)
-- [Skill Definition](skills/spec-test-generator/SKILL.md)
-- [Changelog](CHANGELOG.md)
+- [Getting Started](docs/START_HERE.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [API Reference](docs/reference/python-api.md)
+- [Policy Schema](docs/reference/policy-schema.md)
+- [FAQ](docs/FAQ.md)
+- [Architectural Decisions](docs/DECISIONS.md)
+
+---
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
