@@ -8,6 +8,7 @@ from pathlib import Path
 @dataclass
 class ParsedPRD:
     """Parsed PRD structure."""
+
     title: str = ""
     goal: str = ""
     functional_requirements: list[str] = field(default_factory=list)
@@ -80,9 +81,9 @@ class PRDParser:
 
     def _split_sections(self, content: str) -> dict[str, str]:
         """Split content into sections by headers."""
-        sections = {}
+        sections: dict[str, str] = {}
         current_section = "preamble"
-        current_content = []
+        current_content: list[str] = []
 
         for line in content.split("\n"):
             header_match = re.match(r"^##\s+(.+)$", line)
@@ -125,4 +126,5 @@ class PRDParser:
         """Get parsed PRD."""
         if self._parsed is None:
             self.parse()
+        assert self._parsed is not None
         return self._parsed

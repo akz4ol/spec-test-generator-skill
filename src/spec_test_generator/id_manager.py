@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 
 class IDManager:
@@ -39,7 +39,7 @@ class IDManager:
         if self._idmap_path.exists():
             try:
                 with open(self._idmap_path) as f:
-                    return json.load(f)
+                    return cast(dict[str, Any], json.load(f))
             except (OSError, json.JSONDecodeError):
                 pass
         return {
@@ -87,7 +87,7 @@ class IDManager:
         requirements = self._idmap.setdefault("requirements", {})
 
         if statement_hash in requirements:
-            return requirements[statement_hash]
+            return cast(str, requirements[statement_hash])
 
         # Allocate new ID
         new_id = f"{self.req_prefix}-{str(self._next_req_num).zfill(self.pad)}"
@@ -109,7 +109,7 @@ class IDManager:
         tests = self._idmap.setdefault("tests", {})
 
         if test_hash in tests:
-            return tests[test_hash]
+            return cast(str, tests[test_hash])
 
         # Allocate new ID
         new_id = f"{self.test_prefix}-{str(self._next_test_num).zfill(self.pad)}"

@@ -7,6 +7,7 @@ from typing import Any
 
 class Priority(Enum):
     """Requirement/test priority levels."""
+
     P0 = "P0"
     P1 = "P1"
     P2 = "P2"
@@ -14,6 +15,7 @@ class Priority(Enum):
 
 class TestType(Enum):
     """Test type categories."""
+
     UNIT = "Unit"
     INTEGRATION = "Integration"
     E2E = "E2E"
@@ -22,6 +24,7 @@ class TestType(Enum):
 @dataclass
 class Requirement:
     """A requirement with stable ID."""
+
     id: str
     statement: str
     priority: Priority
@@ -82,6 +85,7 @@ class Requirement:
 @dataclass
 class TestCase:
     """A test case with stable ID."""
+
     id: str
     title: str
     test_type: TestType
@@ -128,6 +132,7 @@ class TestCase:
 @dataclass
 class TestPlan:
     """Test plan strategy."""
+
     strategy: dict[str, str] = field(default_factory=dict)
     test_data: list[str] = field(default_factory=list)
     environments: dict[str, str] = field(default_factory=dict)
@@ -159,6 +164,7 @@ class TestPlan:
 @dataclass
 class TraceabilityEntry:
     """Traceability matrix entry."""
+
     req_id: str
     test_id: str
     test_type: TestType
@@ -172,6 +178,7 @@ class TraceabilityEntry:
 @dataclass
 class PolicyConfig:
     """Policy configuration."""
+
     name: str
     version: str
     config: dict[str, Any]

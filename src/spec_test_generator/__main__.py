@@ -76,7 +76,12 @@ def main() -> int:
                 },
                 "test_cases": [t.to_dict() for t in result["test_cases"]],
                 "traceability": [
-                    {"req_id": e.req_id, "test_id": e.test_id, "type": e.test_type.value, "priority": e.priority.value}
+                    {
+                        "req_id": e.req_id,
+                        "test_id": e.test_id,
+                        "type": e.test_type.value,
+                        "priority": e.priority.value,
+                    }
                     for e in result["traceability"]
                 ],
                 "open_questions": result.get("open_questions", []),
@@ -86,9 +91,9 @@ def main() -> int:
         else:
             artifacts = generator.write_artifacts(result)
 
-            print(f"\n{'='*60}")
+            print(f"\n{'=' * 60}")
             print("Spec & Test Generation Complete")
-            print(f"{'='*60}")
+            print(f"{'=' * 60}")
             print(f"PRD: {args.prd}")
             print()
 

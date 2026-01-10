@@ -180,11 +180,15 @@ class SpecTestGenerator:
         criteria = []
 
         # Basic happy path
-        criteria.append(f"Given valid input, when the operation is performed, then {req_text.lower()}")
+        criteria.append(
+            f"Given valid input, when the operation is performed, then {req_text.lower()}"
+        )
 
         # Error handling
         if any(word in req_text.lower() for word in ["must", "required", "authenticated"]):
-            criteria.append("Given invalid input, when the operation is attempted, then the system returns an appropriate error")
+            criteria.append(
+                "Given invalid input, when the operation is attempted, then the system returns an appropriate error"
+            )
 
         return criteria
 
@@ -194,24 +198,30 @@ class SpecTestGenerator:
 
         # Common edge cases based on keywords
         if "list" in req_text.lower() or "pagination" in req_text.lower():
-            edge_cases.extend([
-                "Empty result set",
-                "Single item result",
-                "Maximum page size exceeded",
-            ])
+            edge_cases.extend(
+                [
+                    "Empty result set",
+                    "Single item result",
+                    "Maximum page size exceeded",
+                ]
+            )
 
         if "auth" in req_text.lower():
-            edge_cases.extend([
-                "Expired credentials",
-                "Missing credentials",
-                "Invalid token format",
-            ])
+            edge_cases.extend(
+                [
+                    "Expired credentials",
+                    "Missing credentials",
+                    "Invalid token format",
+                ]
+            )
 
         if "error" in req_text.lower():
-            edge_cases.extend([
-                "Network timeout",
-                "Malformed request",
-            ])
+            edge_cases.extend(
+                [
+                    "Network timeout",
+                    "Malformed request",
+                ]
+            )
 
         # Ensure minimum edge cases
         generic_cases = [
@@ -229,7 +239,7 @@ class SpecTestGenerator:
             else:
                 break
 
-        return edge_cases[:min_count + 2]  # Slightly over minimum
+        return edge_cases[: min_count + 2]  # Slightly over minimum
 
     def _generate_test_plan(self, parsed: ParsedPRD, policy: PolicyConfig) -> TestPlan:
         """Generate test plan from parsed PRD."""
@@ -239,7 +249,9 @@ class SpecTestGenerator:
             strategy["Unit tests"] = "Request validation, business logic, formatting"
 
         if policy.get("tests.types.integration", True):
-            strategy["Integration tests"] = "Database operations, external service calls, auth middleware"
+            strategy["Integration tests"] = (
+                "Database operations, external service calls, auth middleware"
+            )
 
         if policy.get("tests.types.e2e", True):
             rule = policy.get("tests.e2e_selection_rule", "only_top_flows")
@@ -331,12 +343,14 @@ class SpecTestGenerator:
 
         for test in test_cases:
             for req_id in test.requirement_ids:
-                entries.append(TraceabilityEntry(
-                    req_id=req_id,
-                    test_id=test.id,
-                    test_type=test.test_type,
-                    priority=test.priority,
-                ))
+                entries.append(
+                    TraceabilityEntry(
+                        req_id=req_id,
+                        test_id=test.id,
+                        test_type=test.test_type,
+                        priority=test.priority,
+                    )
+                )
 
         return entries
 
