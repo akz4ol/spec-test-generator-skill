@@ -2,8 +2,12 @@
 
 __version__ = "1.0.0"
 
+from .coverage import CoverageAnalyzer, CoverageReport
 from .generator import SpecTestGenerator
+from .gherkin import GherkinGenerator
 from .id_manager import IDManager
+from .impact import ImpactAnalyzer, ImpactReport
+from .importers import JiraImporter, LinearImporter
 from .models import (
     PolicyConfig,
     Priority,
@@ -26,4 +30,11 @@ __all__ = [
     "TestType",
     "PRDParser",
     "IDManager",
+    "GherkinGenerator",
+    "JiraImporter",
+    "LinearImporter",
+    "CoverageAnalyzer",
+    "CoverageReport",
+    "ImpactAnalyzer",
+    "ImpactReport",
 ]
