@@ -1,6 +1,5 @@
 """Integration tests for ID stability across iterations."""
 
-import pytest
 from pathlib import Path
 
 from spec_test_generator import SpecTestGenerator

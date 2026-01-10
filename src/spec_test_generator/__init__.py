@@ -3,17 +3,17 @@
 __version__ = "1.0.0"
 
 from .generator import SpecTestGenerator
+from .id_manager import IDManager
 from .models import (
+    PolicyConfig,
+    Priority,
     Requirement,
     TestCase,
     TestPlan,
-    TraceabilityEntry,
-    PolicyConfig,
-    Priority,
     TestType,
+    TraceabilityEntry,
 )
 from .parser import PRDParser
-from .id_manager import IDManager
 
 __all__ = [
     "SpecTestGenerator",

@@ -1,6 +1,5 @@
 """Tests for ID manager."""
 
-import pytest
 from pathlib import Path
 
 from spec_test_generator.id_manager import IDManager

@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Any
 
-from .models import Requirement, TestCase, TestPlan, TraceabilityEntry, PolicyConfig
+from .models import PolicyConfig, Requirement, TestCase, TestPlan, TraceabilityEntry
 
 
 class OutputGenerator:

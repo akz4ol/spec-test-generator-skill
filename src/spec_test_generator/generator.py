@@ -5,18 +5,18 @@ from typing import Any
 
 import yaml
 
+from .id_manager import IDManager
 from .models import (
+    PolicyConfig,
+    Priority,
     Requirement,
     TestCase,
     TestPlan,
-    TraceabilityEntry,
-    PolicyConfig,
-    Priority,
     TestType,
+    TraceabilityEntry,
 )
-from .parser import PRDParser, ParsedPRD
-from .id_manager import IDManager
 from .output import OutputGenerator
+from .parser import ParsedPRD, PRDParser
 
 
 class SpecTestGenerator:
@@ -134,9 +134,16 @@ class SpecTestGenerator:
             # Generate edge cases
             edge_cases = self._generate_edge_cases(req_text, min_edge_cases)
 
+            # Normalize statement
+            normalized = req_text.lower()
+            if normalized.startswith("the system shall "):
+                normalized = normalized[17:]
+            elif normalized.startswith("shall "):
+                normalized = normalized[6:]
+
             req = Requirement(
                 id=req_id,
-                statement=f"The system SHALL {req_text.lower().lstrip('the system shall ').lstrip('shall ')}",
+                statement=f"The system SHALL {normalized}",
                 priority=priority,
                 acceptance_criteria=acceptance_criteria,
                 edge_cases=edge_cases,
@@ -149,9 +156,16 @@ class SpecTestGenerator:
             statement_hash = id_manager.hash_statement(req_text)
             req_id = id_manager.get_requirement_id(statement_hash)
 
+            # Normalize statement
+            normalized = req_text.lower()
+            if normalized.startswith("the system should "):
+                normalized = normalized[18:]
+            elif normalized.startswith("should "):
+                normalized = normalized[7:]
+
             req = Requirement(
                 id=req_id,
-                statement=f"The system SHOULD {req_text.lower().lstrip('the system should ').lstrip('should ')}",
+                statement=f"The system SHOULD {normalized}",
                 priority=Priority.P1,
                 acceptance_criteria=[f"Verify: {req_text}"],
                 edge_cases=["Under peak load conditions", "During degraded operations"],
@@ -170,7 +184,7 @@ class SpecTestGenerator:
 
         # Error handling
         if any(word in req_text.lower() for word in ["must", "required", "authenticated"]):
-            criteria.append(f"Given invalid input, when the operation is attempted, then the system returns an appropriate error")
+            criteria.append("Given invalid input, when the operation is attempted, then the system returns an appropriate error")
 
         return criteria
 
@@ -265,7 +279,7 @@ class SpecTestGenerator:
     ) -> list[TestCase]:
         """Generate test cases from requirements."""
         test_cases = []
-        min_tests = policy.get("tests.require_min_tests_per_requirement", 1)
+        _min_tests = policy.get("tests.require_min_tests_per_requirement", 1)  # noqa: F841
         include_negative = policy.get("tests.include_negative_tests", True)
 
         for req in requirements:

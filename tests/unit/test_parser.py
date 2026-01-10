@@ -1,9 +1,10 @@
 """Tests for PRD parser."""
 
-import pytest
 from pathlib import Path
 
-from spec_test_generator.parser import PRDParser, ParsedPRD
+import pytest
+
+from spec_test_generator.parser import PRDParser
 
 
 class TestPRDParser:

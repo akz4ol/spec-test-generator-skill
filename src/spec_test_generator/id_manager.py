@@ -40,7 +40,7 @@ class IDManager:
             try:
                 with open(self._idmap_path) as f:
                     return json.load(f)
-            except (json.JSONDecodeError, IOError):
+            except (OSError, json.JSONDecodeError):
                 pass
         return {
             "requirements": {},
