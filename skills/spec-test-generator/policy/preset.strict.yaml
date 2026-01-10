@@ -1,0 +1,39 @@
+policy_name: "Strict Spec & Test Policy"
+policy_version: "1.0"
+
+ids:
+  requirement_prefix: "REQ"
+  test_prefix: "TEST"
+  pad: 4
+  preserve_existing_ids: true
+
+requirements:
+  fields_required:
+    - statement
+    - priority
+    - rationale
+    - acceptance_criteria
+    - edge_cases
+    - out_of_scope
+  priority_scale: ["P0", "P1", "P2"]
+  acceptance_criteria_style: "given-when-then"
+  min_edge_cases_per_requirement: 4
+  include_open_questions_section: true
+
+tests:
+  require_min_tests_per_requirement: 2
+  include_negative_tests: true
+  min_negative_tests_per_requirement: 1
+  include_security_tests_if_auth_present: true
+  require_security_tests_for_sensitive_data: true
+  types:
+    unit: true
+    integration: true
+    e2e: true
+  e2e_selection_rule: "all_p0_flows"
+
+traceability:
+  required: true
+  fail_if_requirement_missing_tests: true
+  fail_if_test_missing_requirements: true
+  require_bidirectional_traceability_notes: true

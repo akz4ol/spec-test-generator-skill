@@ -1,0 +1,138 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/yourorg/spec-test-generator-skill/schemas/policy.schema.json",
+  "title": "Spec & Test Generator Policy",
+  "description": "Schema for spec and test generation policy configuration files",
+  "type": "object",
+  "required": ["policy_name", "policy_version"],
+  "properties": {
+    "policy_name": {
+      "type": "string",
+      "description": "Human-readable name of the policy"
+    },
+    "policy_version": {
+      "type": "string",
+      "description": "Version of the policy"
+    },
+    "ids": {
+      "type": "object",
+      "properties": {
+        "requirement_prefix": {
+          "type": "string",
+          "description": "Prefix for requirement IDs (e.g., 'REQ')",
+          "default": "REQ"
+        },
+        "test_prefix": {
+          "type": "string",
+          "description": "Prefix for test IDs (e.g., 'TEST')",
+          "default": "TEST"
+        },
+        "pad": {
+          "type": "integer",
+          "description": "Zero-padding width for ID numbers",
+          "default": 4,
+          "minimum": 1,
+          "maximum": 8
+        },
+        "preserve_existing_ids": {
+          "type": "boolean",
+          "description": "Whether to preserve IDs across regenerations",
+          "default": true
+        }
+      }
+    },
+    "requirements": {
+      "type": "object",
+      "properties": {
+        "fields_required": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["statement", "priority", "rationale", "acceptance_criteria", "edge_cases", "out_of_scope", "notes"]
+          },
+          "description": "Required fields for each requirement"
+        },
+        "priority_scale": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Priority levels (e.g., ['P0', 'P1', 'P2'])"
+        },
+        "acceptance_criteria_style": {
+          "type": "string",
+          "enum": ["given-when-then", "bullets", "given-when-then_or_bullets"],
+          "description": "Format for acceptance criteria"
+        },
+        "min_edge_cases_per_requirement": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum number of edge cases per requirement"
+        },
+        "include_open_questions_section": {
+          "type": "boolean",
+          "description": "Whether to include an open questions section"
+        }
+      }
+    },
+    "tests": {
+      "type": "object",
+      "properties": {
+        "require_min_tests_per_requirement": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Minimum tests required per requirement"
+        },
+        "include_negative_tests": {
+          "type": "boolean",
+          "description": "Whether to generate negative test cases"
+        },
+        "min_negative_tests_per_requirement": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum negative tests per requirement"
+        },
+        "include_security_tests_if_auth_present": {
+          "type": "boolean",
+          "description": "Generate security tests when auth is present"
+        },
+        "require_security_tests_for_sensitive_data": {
+          "type": "boolean",
+          "description": "Require security tests for sensitive data operations"
+        },
+        "types": {
+          "type": "object",
+          "properties": {
+            "unit": { "type": "boolean" },
+            "integration": { "type": "boolean" },
+            "e2e": { "type": "boolean" }
+          }
+        },
+        "e2e_selection_rule": {
+          "type": "string",
+          "enum": ["only_top_flows", "all_p0_flows", "all_flows"],
+          "description": "Which flows get E2E tests"
+        }
+      }
+    },
+    "traceability": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "description": "Whether traceability matrix is required"
+        },
+        "fail_if_requirement_missing_tests": {
+          "type": "boolean",
+          "description": "Fail if any requirement lacks test coverage"
+        },
+        "fail_if_test_missing_requirements": {
+          "type": "boolean",
+          "description": "Fail if any test lacks requirement link"
+        },
+        "require_bidirectional_traceability_notes": {
+          "type": "boolean",
+          "description": "Include traceability notes in both directions"
+        }
+      }
+    }
+  }
+}
