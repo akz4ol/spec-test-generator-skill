@@ -1,6 +1,6 @@
 # Spec & Test Generator Skill
 
-[![CI](https://github.com/yourorg/spec-test-generator-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/yourorg/spec-test-generator-skill/actions/workflows/ci.yml)
+[![CI](https://github.com/akz4ol/spec-test-generator-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/akz4ol/spec-test-generator-skill/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
@@ -22,7 +22,7 @@ Converts PRDs and user stories into stable-ID requirements, test plans, test cas
 pip install spec-test-generator
 
 # From source
-git clone https://github.com/yourorg/spec-test-generator-skill.git
+git clone https://github.com/akz4ol/spec-test-generator-skill.git
 cd spec-test-generator-skill
 pip install -e ".[dev]"
 ```

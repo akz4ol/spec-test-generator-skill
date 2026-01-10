@@ -51,11 +51,11 @@ dev = [
 spec-test-generator = "spec_test_generator.__main__:main"
 
 [project.urls]
-Homepage = "https://github.com/yourorg/spec-test-generator-skill"
-Documentation = "https://github.com/yourorg/spec-test-generator-skill#readme"
-Repository = "https://github.com/yourorg/spec-test-generator-skill"
-Issues = "https://github.com/yourorg/spec-test-generator-skill/issues"
-Changelog = "https://github.com/yourorg/spec-test-generator-skill/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/akz4ol/spec-test-generator-skill"
+Documentation = "https://github.com/akz4ol/spec-test-generator-skill#readme"
+Repository = "https://github.com/akz4ol/spec-test-generator-skill"
+Issues = "https://github.com/akz4ol/spec-test-generator-skill/issues"
+Changelog = "https://github.com/akz4ol/spec-test-generator-skill/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.sdist]
 include = [

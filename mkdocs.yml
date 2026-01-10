@@ -1,0 +1,47 @@
+site_name: Spec & Test Generator
+site_description: Generate requirements and test artifacts from PRDs with stable IDs
+site_url: https://akz4ol.github.io/spec-test-generator-skill
+repo_url: https://github.com/akz4ol/spec-test-generator-skill
+repo_name: akz4ol/spec-test-generator-skill
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+  - User Guide:
+    - CLI Reference: guide/cli.md
+    - Python API: guide/python-api.md
+    - Stable IDs: guide/stable-ids.md
+    - Policies: guide/policies.md
+  - Reference:
+    - Artifacts: reference/artifacts.md
+    - Policy Schema: reference/policy-schema.md
+  - Contributing: contributing.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - admonition
+  - tables
