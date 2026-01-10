@@ -1,0 +1,169 @@
+name: 'Spec Test Generator'
+description: 'Generate requirements and test cases from PRDs with stable, traceable IDs'
+author: 'Spec Test Generator Contributors'
+branding:
+  icon: 'check-square'
+  color: 'green'
+
+inputs:
+  prd-path:
+    description: 'Path to PRD markdown file'
+    required: true
+  output-dir:
+    description: 'Directory for generated artifacts'
+    required: false
+    default: 'specs'
+  output-formats:
+    description: 'Comma-separated output formats (markdown,json,gherkin,csv)'
+    required: false
+    default: 'markdown,csv'
+  strict:
+    description: 'Enable strict mode (requires 2+ tests per requirement)'
+    required: false
+    default: 'false'
+  github-token:
+    description: 'GitHub token for PR comments'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  requirements-count:
+    description: 'Number of requirements generated'
+    value: ${{ steps.generate.outputs.requirements-count }}
+  test-cases-count:
+    description: 'Number of test cases generated'
+    value: ${{ steps.generate.outputs.test-cases-count }}
+  coverage-gaps:
+    description: 'Number of coverage gaps found'
+    value: ${{ steps.generate.outputs.coverage-gaps }}
+  requirements-path:
+    description: 'Path to generated REQUIREMENTS.md'
+    value: ${{ steps.generate.outputs.requirements-path }}
+  traceability-path:
+    description: 'Path to generated TRACEABILITY.csv'
+    value: ${{ steps.generate.outputs.traceability-path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install Spec Test Generator
+      shell: bash
+      run: |
+        pip install spec-test-generator
+
+    - name: Generate Specs
+      id: generate
+      shell: bash
+      env:
+        PRD_PATH: ${{ inputs.prd-path }}
+        OUTPUT_DIR: ${{ inputs.output-dir }}
+        OUTPUT_FORMATS: ${{ inputs.output-formats }}
+        STRICT: ${{ inputs.strict }}
+      run: |
+        # Create output directory
+        mkdir -p "$OUTPUT_DIR"
+
+        # Build command
+        CMD="spec-test-generator \"$PRD_PATH\" --output-dir \"$OUTPUT_DIR\""
+
+        # Add format options
+        IFS=',' read -ra FORMATS <<< "$OUTPUT_FORMATS"
+        for format in "${FORMATS[@]}"; do
+          case "$format" in
+            gherkin) CMD="$CMD --gherkin" ;;
+            json) CMD="$CMD --json" ;;
+            csv) CMD="$CMD --csv" ;;
+          esac
+        done
+
+        if [ "$STRICT" = "true" ]; then
+          CMD="$CMD --strict"
+        fi
+
+        # Run generator
+        echo "Running: $CMD"
+        OUTPUT=$(eval $CMD 2>&1) || true
+        echo "$OUTPUT"
+
+        # Parse results
+        REQ_COUNT=$(echo "$OUTPUT" | grep -oP 'Requirements: \K\d+' || echo "0")
+        TEST_COUNT=$(echo "$OUTPUT" | grep -oP 'Test cases: \K\d+' || echo "0")
+        GAPS=$(echo "$OUTPUT" | grep -oP 'Coverage gaps: \K\d+' || echo "0")
+
+        # Set outputs
+        echo "requirements-count=$REQ_COUNT" >> $GITHUB_OUTPUT
+        echo "test-cases-count=$TEST_COUNT" >> $GITHUB_OUTPUT
+        echo "coverage-gaps=$GAPS" >> $GITHUB_OUTPUT
+        echo "requirements-path=$OUTPUT_DIR/REQUIREMENTS.md" >> $GITHUB_OUTPUT
+        echo "traceability-path=$OUTPUT_DIR/TRACEABILITY.csv" >> $GITHUB_OUTPUT
+
+        # Summary
+        echo "## Spec Test Generator Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+        echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Requirements | $REQ_COUNT |" >> $GITHUB_STEP_SUMMARY
+        echo "| Test Cases | $TEST_COUNT |" >> $GITHUB_STEP_SUMMARY
+        echo "| Coverage Gaps | $GAPS |" >> $GITHUB_STEP_SUMMARY
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: spec-test-generator-output
+        path: ${{ inputs.output-dir }}
+        retention-days: 30
+
+    - name: Comment on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const fs = require('fs');
+          const outputDir = '${{ inputs.output-dir }}';
+          const reqPath = `${outputDir}/REQUIREMENTS.md`;
+          const tracePath = `${outputDir}/TRACEABILITY.csv`;
+
+          let body = `## 📋 Spec Test Generator Report\n\n`;
+          body += `| Metric | Count |\n|--------|-------|\n`;
+          body += `| Requirements | ${{ steps.generate.outputs.requirements-count }} |\n`;
+          body += `| Test Cases | ${{ steps.generate.outputs.test-cases-count }} |\n`;
+          body += `| Coverage Gaps | ${{ steps.generate.outputs.coverage-gaps }} |\n\n`;
+
+          if (fs.existsSync(reqPath)) {
+            const requirements = fs.readFileSync(reqPath, 'utf8');
+            const preview = requirements.substring(0, 2000);
+            body += `<details>\n<summary>📄 Requirements Preview</summary>\n\n${preview}\n\n</details>\n`;
+          }
+
+          // Find existing comment
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+
+          const botComment = comments.find(c =>
+            c.user.type === 'Bot' && c.body.includes('Spec Test Generator Report')
+          );
+
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body,
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+          }
