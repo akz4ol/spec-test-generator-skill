@@ -54,7 +54,9 @@ class PRDParser:
         for section_name, section_content in sections.items():
             section_lower = section_name.lower()
 
-            if "goal" in section_lower or "objective" in section_lower:
+            if (
+                "goal" in section_lower or "objective" in section_lower
+            ) and "non" not in section_lower:
                 result.goal = section_content.strip()
 
             elif "functional" in section_lower and "non" not in section_lower:

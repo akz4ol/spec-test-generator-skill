@@ -138,6 +138,9 @@ class IDManager:
         # Normalize: lowercase, remove extra whitespace
         normalized = " ".join(statement.lower().split())
 
+        # Strip trailing punctuation before fingerprinting
+        normalized = normalized.rstrip(".,!?;:")
+
         # Take first ~50 chars for fingerprint stability
         fingerprint = normalized[:50]
 
