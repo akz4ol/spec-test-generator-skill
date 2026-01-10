@@ -42,6 +42,8 @@ Creates:
 - REQUIREMENTS.md (REQ-0001, REQ-0002, ...)
 - TEST_CASES.md (TEST-0001, TEST-0002, ...)
 - TRACEABILITY.csv (which tests cover which reqs)
+- features/*.feature (Gherkin/BDD files)
+- COVERAGE_REPORT.md (gap analysis)
 - .idmap.json (the magic persistence file)
 
 5/ The .idmap.json file stores fingerprint → ID mappings.
@@ -219,7 +221,11 @@ Works well for:
 
 https://github.com/akz4ol/spec-test-generator-skill
 
-Would love feedback from QA folks on what output formats would be useful (Gherkin? TestRail import?).
+v1.0 now includes:
+- Gherkin/BDD output (features/*.feature)
+- Jira/Linear import
+- Test coverage gap analysis
+- Change impact reports
 ```
 
 ---
