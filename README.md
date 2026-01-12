@@ -124,6 +124,41 @@ docker build -t spec-test-generator .
 docker run --rm -v $(pwd):/prds spec-test-generator /prds/prd.md
 ```
 
+### LangChain Integration
+
+```python
+from langchain_community.tools import SpecTestGeneratorTool
+
+tool = SpecTestGeneratorTool()
+result = tool.invoke({
+    "prd_content": "# Feature: User Login\n## Functional Requirements\n...",
+    "output_format": "markdown"
+})
+```
+
+### CrewAI Integration
+
+```python
+from crewai import Agent, Task, Crew
+from crewai_tools import SpecTestGeneratorTool
+
+tool = SpecTestGeneratorTool()
+
+qa_agent = Agent(
+    role="QA Engineer",
+    goal="Generate test specifications from PRDs",
+    tools=[tool]
+)
+
+task = Task(
+    description="Generate requirements and test cases from the PRD",
+    agent=qa_agent
+)
+
+crew = Crew(agents=[qa_agent], tasks=[task])
+result = crew.kickoff()
+```
+
 ---
 
 ## Real-World Use Cases
