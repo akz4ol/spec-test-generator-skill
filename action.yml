@@ -112,7 +112,7 @@ runs:
         echo "| Coverage Gaps | $GAPS |" >> $GITHUB_STEP_SUMMARY
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: spec-test-generator-output
         path: ${{ inputs.output-dir }}
